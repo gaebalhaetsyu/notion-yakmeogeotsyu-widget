@@ -7,4 +7,4 @@
 - 잘못 눌렀으면 「잘못 눌렀어요」로 되돌립니다.
 - 기록은 이 기기 브라우저(localStorage)에만 저장됩니다. 서버로 보내지 않습니다.
 
-배포 주소: https://gaebalhaetsyu.github.io/abik-medicine-widget/
+배포 주소: https://gaebalhaetsyu.github.io/notion-yakmeogeotsyu-widget/
