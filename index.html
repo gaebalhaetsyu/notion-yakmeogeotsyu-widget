@@ -3,107 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#fffaf3">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="약 먹었슈">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💊</text></svg>">
+<link rel="icon" type="image/png" href="img/icon.png">
+<link rel="apple-touch-icon" href="img/icon.png">
 <title>약 먹었슈</title>
 <style>
+  /* 둥글고 잘 읽히는 나눔스퀘어라운드(네이버 공식 웹폰트) */
+  @font-face { font-family: "NanumSquareRound"; font-weight: 400; font-display: swap; src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundR.woff2) format("woff2"), url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundR.woff) format("woff"); }
+  @font-face { font-family: "NanumSquareRound"; font-weight: 700; font-display: swap; src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff2) format("woff2"), url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundB.woff) format("woff"); }
+  @font-face { font-family: "NanumSquareRound"; font-weight: 800; font-display: swap; src: url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff2) format("woff2"), url(https://hangeul.pstatic.net/hangeul_static/webfont/NanumSquareRound/NanumSquareRoundEB.woff) format("woff"); }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    padding: 16px;
-    font-family: -apple-system, "Pretendard", "Malgun Gothic", sans-serif;
-    background: #fffaf3;
-    color: #3b2f2a;
+    padding: 14px;
+    font-family: "NanumSquareRound", -apple-system, "Malgun Gothic", sans-serif;
+    background: #fff; /* 노션 흰 바탕과 맞춤 */
+    color: #4a3024;
   }
   .card {
-    max-width: 460px;
+    width: min(100%, 460px);
     margin: 0 auto;
-    background: #fff;
-    border: 1px solid #f0e2cf;
-    border-radius: 14px;
-    padding: 16px;
+    background: #fff; /* 노션 안에 액자를 또 두지 않음 */
+    padding: 4px 2px 8px;
   }
-  h1 { font-size: 20px; margin: 0 0 2px; }
-  #todayLabel { font-size: 13px; color: #7a6a60; margin-bottom: 14px; }
+  h1 { font-size: 21px; margin: 0 0 3px; letter-spacing: -.4px; display: flex; align-items: center; gap: 6px; }
+  h1 img { width: 30px; height: 30px; }
+  #todayLabel { font-size: 16px; font-weight: 700; color: #a84f2c; margin: 4px 0 16px; }
 
   /* 아침·저녁 큰 버튼 */
-  .doses { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .doses { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 12px; }
+  /* 같은 줄 버튼은 문구 길이와 상관없이 같은 높이 */
+  .doses > div { display: grid; grid-row: span 2; grid-template-rows: subgrid; }
+  .doses > div:nth-child(n+3) .dose, .doses.one > div:nth-child(n+2) .dose { margin-top: 12px; }
   .dose {
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-    width: 100%; min-height: 132px; padding: 12px 8px;
+    width: 100%; min-height: 136px; padding: 13px 8px 12px;
     font-size: 18px; font-weight: 700; color: #3b2f2a;
-    background: #fff3e3; border: 2px dashed #e8b77f; border-radius: 16px;
-    cursor: pointer; font-family: inherit;
+    background: #fff3e0; border: 1.5px dashed #e0ac72; border-radius: 12px;
+    cursor: pointer; font-family: inherit; word-break: keep-all; text-align: center;
+    transition: transform .12s ease, background .16s ease;
   }
-  .dose .icon { font-size: 40px; line-height: 1; }
-  .dose .sub { font-size: 13px; font-weight: 400; color: #7a6a60; }
-  .dose.done { background: #fdebc8; border: 2px solid #e8913a; }
-  .dose.done .icon { animation: pop .35s ease-out; }
-  @keyframes pop { 0% { transform: scale(.4); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
-  .undo {
-    display: block; margin: 6px auto 0; padding: 6px 10px; font-size: 12px;
-    background: none; border: none; color: #9a8a80; text-decoration: underline; cursor: pointer;
-    font-family: inherit; visibility: hidden;
+  .dose:active { transform: scale(.98); }
+  .dose:focus-visible, .ask button:focus-visible { outline: 3px solid #b96332; outline-offset: 3px; }
+  .dose .icon { display: grid; place-items: center; height: 62px; line-height: 1; }
+  .dose .icon img { width: 62px; height: 62px; object-fit: contain; display: block; }
+  /* 아직 안 붙인 스티커는 흐리게, 누르면 선명하게 찍힘 */
+  .dose:not(.done) .icon img { filter: grayscale(.7); opacity: .5; }
+  .dose .sub { font-size: 13px; font-weight: 400; color: #6f5d52; }
+  .dose.done { background: #ffe6b8; border: 1.5px solid #de8435; }
+  .dose.done .icon { animation: stamp .42s cubic-bezier(.2, 1.5, .45, 1); }
+  /* 정한 시각이 지났는데 아직 안 누름 */
+  .dose.late { background: #ffe8e0; border: 1.5px solid #c8462b; color: #8f2f1b; }
+  .dose.late .sub { color: #8f2f1b; font-weight: 700; }
+  @keyframes stamp { 0% { transform: scale(.35) rotate(-12deg); } 70% { transform: scale(1.15) rotate(4deg); } 100% { transform: scale(1) rotate(0); } }
+  @media (prefers-reduced-motion: reduce) { .dose, .dose.done .icon { animation: none !important; transition: none; } }
+  /* 먹은 버튼을 다시 누르면 나오는 확인 줄 (노션 임베드에선 confirm 창이 막힐 수 있어 화면 안에서 물음) */
+  .ask {
+    flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px;
+    margin-top: 6px; font-size: 13px; color: #7a6a60; display: none;
   }
-  .undo.show { visibility: visible; }
+  .ask.show { display: flex; }
+  .ask .q { width: 100%; text-align: center; }
+  .ask button {
+    min-height: 44px; padding: 8px 16px; font-size: 14px; font-family: inherit; border-radius: 8px; cursor: pointer;
+    border: 1px solid #e8b77f; background: #fff; color: #3b2f2a;
+  }
+  .ask button { font-weight: 700; }
+  .ask .yes { border-color: #c8462b; color: #8f2f1b; }
 
-  #cheer { margin: 12px 0 0; text-align: center; font-size: 15px; font-weight: 700; color: #b5532b; min-height: 20px; }
+  #cheer { margin: 15px 0 0; text-align: center; font-size: 15px; font-weight: 700; color: #a84f2c; min-height: 20px; }
 
   /* 스티커 판 */
-  .boardHead { display: flex; justify-content: space-between; align-items: baseline; margin-top: 18px; }
+  .boardHead { display: flex; justify-content: space-between; align-items: baseline; margin-top: 22px; }
   .boardHead h2 { font-size: 15px; margin: 0; }
   #streak { font-size: 13px; color: #7a6a60; }
-  .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 8px; }
-  .wname { text-align: center; font-size: 11px; color: #9a8a80; }
+  .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; margin-top: 8px; }
+  .wname { text-align: center; font-size: 11px; color: #6f5d52; }
   .cell {
     aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    border-radius: 10px; background: #faf3ea; font-size: 11px; color: #9a8a80; position: relative;
+    border-radius: 6px; padding-top: 9px; background: #fff4e5; font-size: 11px; color: #6f5d52; position: relative;
   }
   .cell .num { position: absolute; top: 3px; left: 5px; font-size: 10px; }
-  .cell .stk { font-size: 20px; line-height: 1; }
-  .cell .half { font-size: 13px; line-height: 1; letter-spacing: 1px; }
-  .cell.full { background: #fdebc8; }
-  .cell.today { outline: 2px solid #e8913a; }
+  .cell .stk, .cell .half { display: grid; place-items: center; line-height: 1; }
+  .cell .stk img { width: 36px; height: 36px; object-fit: contain; }
+  .cell .half img { width: 30px; height: 30px; object-fit: contain; }
+  .cell.full { background: #ffe8bc; }
+  .cell.today { outline: 2px solid #d77732; outline-offset: 1px; }
   .cell.blank { background: none; }
-  .legend { margin-top: 8px; font-size: 12px; color: #7a6a60; text-align: center; }
+  .legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 9px; margin-top: 11px; font-size: 12px; color: #725f55; text-align: center; }
+  .legend span { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+  .legend img { width: 17px; height: 17px; object-fit: contain; }
+  .link {
+    display: block; min-height: 44px; margin: 4px auto 0; padding: 10px 14px; font-size: 13px; font-family: inherit;
+    background: none; border: none; color: #8a5a3a; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  }
+  .link:focus-visible, .timeBox button:focus-visible { outline: 3px solid #b96332; outline-offset: 2px; border-radius: 6px; }
+  #monthBox { margin-top: 6px; padding-top: 10px; border-top: 1px dashed #efd6b2; }
+  #monthBox h2 { font-size: 14px; margin: 0; text-align: center; }
+  .timeBox { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-top: 6px; font-size: 14px; }
+  .timeBox label { display: inline-flex; align-items: center; gap: 4px; }
+  .timeBox input { min-height: 44px; cursor: pointer; font-size: 15px; font-family: inherit; padding: 4px 8px; border: 1px solid #e3c49c; border-radius: 8px; background: #fff; color: #3b2f2a; }
+  .timeBox button { min-height: 44px; padding: 8px 24px; font-size: 14px; font-family: inherit; border-radius: 8px; border: 1px solid #de8435; background: #ffe3af; color: #4a3024; font-weight: 700; cursor: pointer; }
+  /* 약을 1개만 고르면 한 줄, 3~4개면 2×2로 작게 */
+  .doses.one { grid-template-columns: minmax(0, 1fr); }
+  .doses.compact .dose { min-height: 112px; font-size: 16px; padding: 10px 6px; }
+  .doses.compact .dose .icon, .doses.compact .dose .icon img { height: 46px; width: 46px; }
+  .cell .half.many { display: flex; flex-wrap: wrap; justify-content: center; gap: 0; max-width: 42px; }
+  .cell .half.many img { width: 20px; height: 20px; }
+  .timeBox { flex-direction: column; }
+  .timeHelp { margin: 0; font-size: 12px; color: #7a6a60; text-align: center; }
+  #timeRows { display: flex; flex-direction: column; gap: 8px; width: min(100%, 270px); }
+  .timeRow { display: grid; grid-template-columns: 1fr 160px; align-items: center; gap: 10px; }
+  .timeRow input[type=time] { width: 100%; text-align: center; }
+  .timeRow label { gap: 8px; min-height: 44px; padding-right: 8px; cursor: pointer; }
+  .timeRow input[type=checkbox] { width: 22px; height: 22px; min-height: 0; accent-color: #c8662f; cursor: pointer; }
+  #timeMsg { font-size: 12px; color: #8f2f1b; min-height: 15px; }
+  h1 { font-weight: 800; }
+  [hidden] { display: none !important; }
   #saveNotice { margin-top: 10px; font-size: 12px; color: #b5532b; min-height: 16px; text-align: center; }
 </style>
 </head>
 <body>
-  <div class="card">
-    <h1>💊 약 먹었슈</h1>
+  <main class="card">
+    <h1><img src="img/icon.png" alt="" width="192" height="192">약 먹었슈</h1>
     <div id="todayLabel"></div>
 
-    <div class="doses">
-      <div>
-        <button class="dose" id="amBtn" data-slot="am"></button>
-        <button class="undo" id="amUndo" data-slot="am">잘못 눌렀어요</button>
-      </div>
-      <div>
-        <button class="dose" id="pmBtn" data-slot="pm"></button>
-        <button class="undo" id="pmUndo" data-slot="pm">잘못 눌렀어요</button>
-      </div>
-    </div>
+    <div class="doses" id="doses"></div>
     <div id="cheer"></div>
 
     <div class="boardHead">
-      <h2 id="boardTitle">스티커 판</h2>
+      <h2>이번 주</h2>
       <span id="streak"></span>
     </div>
-    <div class="week" id="weekNames"></div>
-    <div class="week" id="board"></div>
-    <div class="legend">🍰 아침·저녁 다 먹은 날 · ☀️ 아침만 · 🌙 저녁만</div>
+    <div class="week wnames"></div>
+    <div class="week" id="weekRow"></div>
+
+    <button class="link" id="monthToggle" aria-expanded="false" aria-controls="monthBox">이달 판 보기 ▼</button>
+    <div id="monthBox" hidden>
+      <h2 id="boardTitle">스티커 판</h2>
+      <div class="week wnames"></div>
+      <div class="week" id="board"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <button class="link" id="timeToggle" aria-expanded="false" aria-controls="timeBox"></button>
+    <div class="timeBox" id="timeBox" hidden>
+      <p class="timeHelp">먹는 약에 체크하고 시각을 고르세요.<br>시각이 지나도 안 누르면 버튼이 빨개져요.</p>
+      <div id="timeRows"></div>
+      <div id="timeMsg"></div>
+      <button id="timeSave">저장</button>
+    </div>
     <div id="saveNotice"></div>
-  </div>
+  </main>
 
 <script>
   const STORAGE_KEY = "medicine-log"; // { "2026-11-22": { am: "08:12", pm: "21:30" } }
+  // 하루 약 4번 중 고른 것만 버튼으로 보임. due: 이 시각이 지나도 안 누르면 「아직이에요!」
+  const ORDER = ["am", "noon", "pm", "bed"];
   const SLOT = {
-    am: { name: "아침", icon: "☀️", empty: "🌅" },
-    pm: { name: "저녁", icon: "🌙", empty: "🌆" }
+    am: { name: "아침", due: "08:00" },
+    noon: { name: "점심", due: "12:30" },
+    pm: { name: "저녁", due: "21:00" },
+    bed: { name: "자기 전", due: "23:00" }
   };
+  let on = ["am", "pm"]; // 처음엔 아침·저녁
+  function img(k, alt) { return '<img src="img/' + k + '.png" alt="' + (alt || "") + '" width="192" height="192">'; }
 
   function ymd(d) {
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
@@ -136,22 +202,57 @@
       "이 화면에서는 기록을 저장할 수 없어요. 새로고침하면 스티커가 사라집니다.";
   }
 
+  // 약 시간 설정: 위젯 아래 「약 시간 설정」에서 정하면 이 기기에 저장됨
+  const TIMES_KEY = "medicine-times"; // { am: "08:00", noon: "12:30", pm: "21:00", bed: "23:00", on: ["am","pm"] }
+  const okTime = function (v) { return typeof v === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(v); };
+  try {
+    const t = JSON.parse(localStorage.getItem(TIMES_KEY) || "null");
+    if (t && typeof t === "object") {
+      ORDER.forEach(function (k) { if (okTime(t[k])) SLOT[k].due = t[k]; });
+      if (Array.isArray(t.on)) {
+        const v = ORDER.filter(function (k) { return t.on.indexOf(k) >= 0; });
+        if (v.length) on = v;
+      }
+    }
+  } catch (e) { /* 못 읽으면 기본값 */ }
+
   let todayKey = ymd(new Date());
+  const askOpen = {};
 
   function dayOf(key) { return log[key] || {}; }
+  function doneOf(day) { return on.filter(function (k) { return day[k]; }); }
+
+  // 고른 약 수에 맞춰 버튼을 새로 만듦
+  function buildDoses() {
+    const box = document.getElementById("doses");
+    box.className = "doses" + (on.length === 1 ? " one" : on.length > 2 ? " compact" : "");
+    box.innerHTML = on.map(function (k) {
+      return '<div><button class="dose" id="' + k + 'Btn" data-slot="' + k + '"></button>' +
+        '<div class="ask" id="' + k + 'Ask"><span class="q">스티커 뗄까요?</span>' +
+        '<button class="yes" data-slot="' + k + '">떼기</button><button class="no" data-slot="' + k + '">그대로</button></div></div>';
+    }).join("");
+    document.getElementById("legend").innerHTML =
+      '<span>' + img("done") + '다 먹은 날</span>' +
+      (on.length > 1 ? on.map(function (k) { return '<span>' + img(k) + SLOT[k].name + '</span>'; }).join("") : "");
+  }
 
   function press(slot) {
     const day = log[todayKey] || (log[todayKey] = {});
-    if (day[slot]) return; // 이미 붙인 스티커는 두 번 붙지 않음
+    if (day[slot]) { // 이미 붙였으면 두 번 붙지 않고, 뗄지 한 번 물음
+      askOpen[slot] = !askOpen[slot];
+      render();
+      return;
+    }
     day[slot] = hm(new Date());
     save();
     render(slot);
   }
   function undo(slot) {
+    askOpen[slot] = false;
     const day = log[todayKey];
     if (!day) return;
     delete day[slot];
-    if (!day.am && !day.pm) delete log[todayKey];
+    if (!Object.keys(day).length) delete log[todayKey];
     save();
     render();
   }
@@ -159,20 +260,55 @@
   function renderButton(slot, justPressed) {
     const info = SLOT[slot];
     const btn = document.getElementById(slot + "Btn");
-    const undoBtn = document.getElementById(slot + "Undo");
+    const ask = document.getElementById(slot + "Ask");
     const time = dayOf(todayKey)[slot];
+    const late = !time && hm(new Date()) >= info.due;
     btn.classList.toggle("done", !!time);
-    if (time) {
-      btn.innerHTML = '<span class="icon">' + info.icon + '</span>' + info.name + ' 먹었슈!' +
-        '<span class="sub">' + time + '에 붙인 스티커</span>';
+    btn.classList.toggle("late", late);
+    const icon = '<span class="icon">' + img(slot) + '</span>';
+    if (late) {
+      btn.innerHTML = icon + info.name + ' 약 아직이에요!' +
+        '<span class="sub">' + info.due.replace(/^0/, "") + ' 지났어요 · 먹었으면 꾹</span>';
+      btn.setAttribute("aria-label", info.name + " 약 아직 안 먹음, " + info.due + " 지남. 먹었으면 누르기");
+    } else if (time) {
+      btn.innerHTML = icon + info.name + ' 약 먹었슈!' +
+        '<span class="sub">' + time + '에 먹음</span>';
       btn.setAttribute("aria-label", info.name + " 약 먹음, " + time);
     } else {
-      btn.innerHTML = '<span class="icon">' + info.empty + '</span>' + info.name + ' 먹었슈' +
+      btn.innerHTML = icon + info.name + ' 약 먹었슈' +
         '<span class="sub">먹었으면 꾹</span>';
       btn.setAttribute("aria-label", info.name + " 약 먹었으면 누르기");
     }
     if (!justPressed) btn.querySelector(".icon").style.animation = "none";
-    undoBtn.classList.toggle("show", !!time);
+    if (!time) askOpen[slot] = false;
+    ask.classList.toggle("show", !!askOpen[slot]);
+  }
+
+  function fillCell(cell, key, d) {
+    const done = doneOf(dayOf(key));
+    cell.className = "cell" + (key === todayKey ? " today" : "");
+    let inner = '<span class="num">' + d + '</span>';
+    if (done.length === on.length) {
+      cell.classList.add("full");
+      inner += '<span class="stk">' + img("done", "다 먹음") + '</span>';
+    } else if (done.length) {
+      inner += '<span class="half' + (done.length > 1 ? ' many' : '') + '">' +
+        done.map(function (k) { return img(k, SLOT[k].name); }).join("") + '</span>';
+    }
+    cell.innerHTML = inner;
+  }
+
+  function renderWeek() {
+    const row = document.getElementById("weekRow");
+    row.innerHTML = "";
+    const sun = new Date();
+    sun.setDate(sun.getDate() - sun.getDay()); // 이번 주 일요일
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(sun.getFullYear(), sun.getMonth(), sun.getDate() + i);
+      const cell = document.createElement("div");
+      fillCell(cell, ymd(d), d.getDate());
+      row.appendChild(cell);
+    }
   }
 
   function renderBoard() {
@@ -183,35 +319,24 @@
     board.innerHTML = "";
     const first = new Date(y, m, 1);
     const lastDate = new Date(y, m + 1, 0).getDate();
-    const lead = (first.getDay() + 6) % 7; // 월요일 시작
+    const lead = first.getDay(); // 일요일 시작
     for (let i = 0; i < lead; i++) {
       const b = document.createElement("div"); b.className = "cell blank"; board.appendChild(b);
     }
     for (let d = 1; d <= lastDate; d++) {
-      const key = ymd(new Date(y, m, d));
-      const day = dayOf(key);
       const cell = document.createElement("div");
-      cell.className = "cell" + (key === todayKey ? " today" : "");
-      let inner = '<span class="num">' + d + '</span>';
-      if (day.am && day.pm) { cell.classList.add("full"); inner += '<span class="stk">🍰</span>'; }
-      else if (day.am) inner += '<span class="half">☀️</span>';
-      else if (day.pm) inner += '<span class="half">🌙</span>';
-      cell.innerHTML = inner;
+      fillCell(cell, ymd(new Date(y, m, d)), d);
       board.appendChild(cell);
     }
   }
 
-  // 오늘까지 아침·저녁 다 먹은 날이 며칠 이어졌는지 (오늘이 아직 덜 찼으면 어제부터 셈)
+  // 고른 약을 다 먹은 날이 며칠 이어졌는지 (오늘이 아직 덜 찼으면 어제부터 셈)
   function streak() {
+    const full = function (d) { return doneOf(dayOf(ymd(d))).length === on.length; };
     const d = new Date();
-    const t = dayOf(ymd(d));
-    if (!(t.am && t.pm)) d.setDate(d.getDate() - 1);
+    if (!full(d)) d.setDate(d.getDate() - 1);
     let n = 0;
-    while (true) {
-      const day = dayOf(ymd(d));
-      if (!(day.am && day.pm)) break;
-      n++; d.setDate(d.getDate() - 1);
-    }
+    while (full(d)) { n++; d.setDate(d.getDate() - 1); }
     return n;
   }
 
@@ -220,36 +345,88 @@
     const W = ["일", "월", "화", "수", "목", "금", "토"];
     document.getElementById("todayLabel").textContent =
       "오늘 " + (now.getMonth() + 1) + "월 " + now.getDate() + "일 (" + W[now.getDay()] + ")";
-    renderButton("am", justPressed === "am");
-    renderButton("pm", justPressed === "pm");
+    on.forEach(function (k) { renderButton(k, justPressed === k); });
     const t = dayOf(todayKey);
+    const done = doneOf(t);
+    const next = on.filter(function (k) { return !t[k]; })[0];
     document.getElementById("cheer").textContent =
-      t.am && t.pm ? "오늘 스티커 판 한 칸 완성! 🍰" :
-      t.am ? "아침 OK! 저녁도 잊지 말기" :
-      t.pm ? "저녁 OK! 내일 아침도 꾹" : "";
+      done.length === on.length ? "오늘 한 칸 완성!" :
+      done.length ? SLOT[done[done.length - 1]].name + " OK! " + SLOT[next].name + " 약도 잊지 말기" : "";
     const s = streak();
-    document.getElementById("streak").textContent = s > 0 ? "🔥 " + s + "일 연속" : "";
+    document.getElementById("streak").textContent = s > 0 ? s + "일 연속" : "";
+    renderWeek();
     renderBoard();
+    const short = function (v) { return v.replace(/^0/, ""); };
+    document.getElementById("timeToggle").textContent =
+      "약 시간 설정 (" + on.map(function (k) { return short(SLOT[k].due); }).join(" · ") + ")";
   }
 
   // 날짜가 바뀌면(자정·다음 날 다시 열기) 오늘 칸을 새로 그림
   function checkDate() {
     const k = ymd(new Date());
-    if (k !== todayKey) { todayKey = k; render(); }
+    if (k !== todayKey) todayKey = k;
+    render(); // 날짜가 바뀌거나 정한 시각이 지나면 버튼 모양을 새로 그림
   }
   setInterval(checkDate, 30000);
   document.addEventListener("visibilitychange", function () { if (!document.hidden) checkDate(); });
   window.addEventListener("focus", checkDate);
 
-  document.getElementById("weekNames").innerHTML =
-    ["월", "화", "수", "목", "금", "토", "일"].map(function (n) { return '<div class="wname">' + n + '</div>'; }).join("");
-  document.querySelectorAll(".dose").forEach(function (b) {
-    b.addEventListener("click", function () { press(b.dataset.slot); });
+  document.querySelectorAll(".wnames").forEach(function (el) {
+    el.innerHTML = ["일", "월", "화", "수", "목", "금", "토"].map(function (n) { return '<div class="wname">' + n + '</div>'; }).join("");
   });
-  document.querySelectorAll(".undo").forEach(function (b) {
-    b.addEventListener("click", function () { undo(b.dataset.slot); });
+
+  // 약 시간 설정 줄 4개
+  document.getElementById("timeRows").innerHTML = ORDER.map(function (k) {
+    return '<div class="timeRow"><label><input type="checkbox" id="on_' + k + '">' + SLOT[k].name + '</label>' +
+      '<input type="time" id="t_' + k + '" aria-label="' + SLOT[k].name + ' 약 시각"></div>';
+  }).join("");
+
+  // 접었다 펴기 (이달 판·시각 설정)
+  function toggleBox(btnId, boxId, openText, closeText) {
+    const btn = document.getElementById(btnId), box = document.getElementById(boxId);
+    const open = box.hidden;
+    box.hidden = !open;
+    btn.setAttribute("aria-expanded", String(open));
+    if (openText) btn.textContent = open ? closeText : openText;
+    return open;
+  }
+  document.getElementById("monthToggle").addEventListener("click", function () {
+    toggleBox("monthToggle", "monthBox", "이달 판 보기 ▼", "이달 판 접기 ▲");
+  });
+  document.getElementById("timeToggle").addEventListener("click", function () {
+    if (toggleBox("timeToggle", "timeBox")) {
+      ORDER.forEach(function (k) {
+        document.getElementById("on_" + k).checked = on.indexOf(k) >= 0;
+        document.getElementById("t_" + k).value = SLOT[k].due;
+      });
+      document.getElementById("timeMsg").textContent = "";
+    }
+  });
+  document.getElementById("timeSave").addEventListener("click", function () {
+    const pick = ORDER.filter(function (k) { return document.getElementById("on_" + k).checked; });
+    if (!pick.length) { document.getElementById("timeMsg").textContent = "약을 하나 이상 골라 주세요."; return; }
+    ORDER.forEach(function (k) {
+      const v = document.getElementById("t_" + k).value;
+      if (okTime(v)) SLOT[k].due = v;
+    });
+    on = pick;
+    const keep = { on: on };
+    ORDER.forEach(function (k) { keep[k] = SLOT[k].due; });
+    try { localStorage.setItem(TIMES_KEY, JSON.stringify(keep)); } catch (e) {}
+    toggleBox("timeToggle", "timeBox");
+    buildDoses();
+    render();
+  });
+  document.getElementById("doses").addEventListener("click", function (e) {
+    const b = e.target.closest("button");
+    if (!b) return;
+    const k = b.dataset.slot;
+    if (b.classList.contains("dose")) press(k);
+    else if (b.classList.contains("yes")) undo(k);
+    else if (b.classList.contains("no")) { askOpen[k] = false; render(); }
   });
   save();
+  buildDoses();
   render();
 </script>
 </body>
